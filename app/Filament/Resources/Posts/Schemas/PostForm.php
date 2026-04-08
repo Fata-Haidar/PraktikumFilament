@@ -29,11 +29,22 @@ class PostForm
                 ->schema([
                     //grouping2
                     Group::make ([
-                TextInput::make(name: 'title')->required()->minLength(5),
+                TextInput::make(name: 'title')
+                ->rules('required | min:5 |max:10'),
                 TextInput::make('slug')
+                ->rules(['required', 'min:3'])
+                ->unique()
+                ->validationMessages([
+                    'unique' => 'slug harus Unik.',
+                ]),
+                Select::make('category_id') 
+                ->relationship("Category", "name")
                 ->required()
-                ->unique(ignoreRecord: true),
-                Select::make('category_id') ->label('Category') ->options( \App\Models\Category::all()->pluck('name', 'id') ) ->required(), 
+                ->preload()
+                ->searchable()
+                ->validationMessages([
+                    'required' => 'Category wajib dipilih.',
+                ]),
                 ColorPicker::make(name: 'color'),
                 ])->columns(2),
 
@@ -48,8 +59,12 @@ class PostForm
                 ->icon('heroicon-o-photo') //icon2
                 ->schema([
                 FileUpload::make('image')
+                ->required()
                 ->disk("public")
-                ->directory('posts'),
+                ->directory('posts')
+                ->validationMessages([
+                    'required' => 'image wajib diupload.',
+                ]),
                 ]),
 
                 //Section 3 - Meta
