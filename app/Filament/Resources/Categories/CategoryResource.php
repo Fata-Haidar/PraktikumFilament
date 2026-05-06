@@ -13,6 +13,8 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use App\Filament\Resources\Categories\RelationManagers\PostsRelationManager;
+use App\Models\Post;
 
 class CategoryResource extends Resource
 {
@@ -34,9 +36,9 @@ class CategoryResource extends Resource
 
     public static function getRelations(): array
     {
-        return [
-            //
-        ];
+         return [
+        PostsRelationManager::class,
+    ];
     }
 
     public static function getPages(): array
