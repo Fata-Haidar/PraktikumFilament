@@ -4,7 +4,9 @@ namespace App\Filament\Resources\Posts\Tables;
 
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
+use Filament\Actions\ReplicateAction;
 use Filament\Tables\Table;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ColorColumn;
@@ -13,6 +15,8 @@ use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Forms\Components\DatePicker;
 use Filament\Tables\Filters\SelectFilter;
+use Filament\Forms\Components\Checkbox;
+use filament\Actions\Action;
 
 class PostsTable
 {
@@ -69,7 +73,30 @@ class PostsTable
                 ->preload(),
             ])
             ->recordActions([
-                EditAction::make(),
+                ReplicateAction::make()
+                ->label('Replicate')
+                ->icon('heroicon-o-document-duplicate'),
+                EditAction::make()
+                ->label('Edit')
+                ->icon('heroicon-o-pencil-square'),
+                DeleteAction::make()
+                ->label('Delete')
+                ->icon('heroicon-o-trash'),
+                Action::make('status')
+                ->label(fn ($record) => $record->published ? 'Unpublish' : 'Publish')
+                ->icon(fn ($record) => $record->published 
+                ? 'heroicon-o-x-circle' 
+                : 'heroicon-o-check-circle')
+                ->requiresConfirmation()
+                ->modalHeading('Ubah Status Publish')
+                ->modalDescription('Apakah kamu yakin ingin mengubah status publish data ini?')
+                ->schema([
+                    Checkbox::make('published')
+                    ->default(fn($record): bool => $record->published),
+                ])
+                ->action(function ($record, $data) {
+                     $record->update(['published' => ! $record->published,]);
+                })
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
